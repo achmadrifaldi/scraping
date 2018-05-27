@@ -42,7 +42,7 @@ def help_text
   text += "/top - Get latest data\n"
   text += "/watch - Start to get live data\n"
   text += "/endwatch - Stop to get live data\n"
-  text += "/query - Get data by query\n"
+  text += "/query - Manage data by query\n"
   text += "/reset - Reset a Bot\n"
   text += "/help - Get command info\n"
   text
@@ -85,7 +85,7 @@ Telegram::Bot::Client.run(ENV['TELEGRAM_TOKEN']) do |bot|
     if authorize(client, message.chat.id)
       case message.text
       when '/start'
-        text = "I'm ready!. Use /help to see the command."
+        text = "I'm ready! Use /help to see the command."
         bot.api.send_message(chat_id: message.chat.id, text: text)
       when '/stop'
         unsubscribe(client, message.chat.id)
