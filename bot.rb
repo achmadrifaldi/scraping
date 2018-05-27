@@ -125,7 +125,7 @@ Telegram::Bot::Client.run(ENV['TELEGRAM_TOKEN']) do |bot|
             kb = Telegram::Bot::Types::ReplyKeyboardRemove.new(remove_keyboard: true)
             bot.api.send_message(chat_id: message.chat.id, text: message.text)
             sql =  message.text
-            results = client.query(sql) rescue []
+            results = client.query(sql) || [] rescue []
             command = ''
 
             if results.count > 0

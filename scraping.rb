@@ -2,7 +2,6 @@ require 'rubygems'
 require 'dotenv/load'
 require 'mysql2'
 require 'mechanize'
-require 'telegram/bot'
 
 # Define Database Connection
 client = Mysql2::Client.new(
@@ -17,14 +16,6 @@ URL_LIST = ['http://your-url.com']
 loop do
   agent = Mechanize.new
   agent.user_agent_alias = 'Windows Mozilla'
-
-  sql = "SELECT * FROM users WHERE watch = 1 LIMIT 1"
-  results = client.query(sql)
-
-  if results.count > 0
-    list = "USER" + " |  " + "TEMPERATURE" + "\n\n"
-    string = ""
-  end
 
   URL_LIST.each do |url|
     agent.add_auth(url, ENV['USERNAME'], ENV['PASSWORD'])
@@ -41,25 +32,11 @@ loop do
 
         sql = "INSERT INTO ant_miner (user, elapsed, hash, temperature, created_at) VALUES ('#{user}', '#{elapsed}', '#{ghsav}', '#{temperature}', '#{time_at}')"
         result = client.query(sql)
-
-        if results.count > 0
-          string += user + "\t" + "-" + ghsav + "Gh/s" +  " " + "-" + temperature +".C" + "\n" + "elpsed: \t" + elapsed + "\n"
-        end
       end
     end
   end
 
-  if results.count > 0
-    text = "#{list} #{string}"
-
-    results.each do |row|
-      Telegram::Bot::Client.run(ENV['TELEGRAM_TOKEN']) do |bot|
-        bot.api.send_message(chat_id: row['chat_id'], text: text)
-      end
-    end
-  end
-
-  sleep(5)
+  sleep(600)
 end
 
 

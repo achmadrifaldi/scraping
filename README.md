@@ -28,6 +28,15 @@ To start scraping the data, you can use this command from the console:
 ``` ruby
   $ ruby scraping_control.rb start
     (scraping.rb is now running in the background)
+  $ ruby notification_control.rb start
+    (notification.rb is now running in the background)
+```
+
+And check daemons status with run this command:
+
+``` ruby
+  $ ruby scraping_control.rb status
+  $ ruby notification_control.rb status
 ```
 
 And to stop or restart the scraping process, use this command:
