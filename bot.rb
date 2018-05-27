@@ -141,6 +141,8 @@ Telegram::Bot::Client.run(ENV['TELEGRAM_TOKEN']) do |bot|
             text = "No data available"
             bot.api.send_message(chat_id: message.chat.id, text: text, reply_markup: kb)
           end
+
+          command = ''
         else
           text = "Use /help to see the command."
           bot.api.send_message(chat_id: message.chat.id, text: text)
