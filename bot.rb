@@ -104,12 +104,12 @@ Telegram::Bot::Client.run(ENV['TELEGRAM_TOKEN']) do |bot|
         bot.api.send_message(chat_id: message.chat.id, text: text)
       when '/query'
         command = '/query'
+        query_text = "SELECT * FROM ant_miner WHERE temperature > 30  ORDER BY created_at DESC LIMIT 9"
         kb = [
           Telegram::Bot::Types::KeyboardButton.new(text: query_text)
         ]
         markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: kb)
         bot.api.send_message(chat_id: message.chat.id, text: "Please enter the query:", reply_markup: markup)
-        query_text = "SELECT * FROM ant_miner WHERE temperature > 30  ORDER BY created_at DESC LIMIT 9"
       when '/reset'
         command = ''
         text = "Let's start again!\n\n"
