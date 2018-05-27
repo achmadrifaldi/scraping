@@ -19,6 +19,7 @@ Scraping ant miner data and access the data from Telegram Bot
   2. Import scraping.sql to mysql database
   3. Rename .env.example to .env
   4. Update environment variable in .env file
+  5. In scraping.rb update URL_LIST with your ant miner URL
 
 # Basic Usage
 
