@@ -81,85 +81,89 @@ def endwatch(client, chat_id)
 end
 
 Telegram::Bot::Client.run(ENV['TELEGRAM_TOKEN']) do |bot|
-  bot.listen do |message|
-    if authorize(client, message.chat.id)
-      case message.text
-      when '/start'
-        text = "I'm ready! Use /help to see the command."
-        bot.api.send_message(chat_id: message.chat.id, text: text)
-      when '/stop'
-        unsubscribe(client, message.chat.id)
-        text = "Bye bye! Have a nice day!"
-        bot.api.send_message(chat_id: message.chat.id, text: text)
-      when '/top'
-        text = top(client)
-        bot.api.send_message(chat_id: message.chat.id, text: text)
-      when '/watch'
-        watch(client, message.chat.id)
-        text = "Enjoy the live data. Use /endwatch to stop watching the live data."
-        bot.api.send_message(chat_id: message.chat.id, text: text)
-      when '/endwatch'
-        endwatch(client, message.chat.id)
-        text = "You are no longer watching the data."
-        bot.api.send_message(chat_id: message.chat.id, text: text)
-      when '/query'
-        command = '/query'
-        query_text = "SELECT * FROM ant_miner WHERE temperature > 30  ORDER BY created_at DESC LIMIT 9"
-        kb = [
-          Telegram::Bot::Types::KeyboardButton.new(text: query_text)
-        ]
-        markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: kb)
-        bot.api.send_message(chat_id: message.chat.id, text: "Please enter the query:", reply_markup: markup)
-      when '/reset'
-        command = ''
-        text = "Let's start again!\n\n"
-        text += help_text
-
-        bot.api.send_message(chat_id: message.chat.id, text: text)
-      when '/help'
-        bot.api.send_message(chat_id: message.chat.id, text: help_text)
-      else
-        case command
+  begin
+    bot.listen do |message|
+      if authorize(client, message.chat.id)
+        case message.text
+        when '/start'
+          text = "I'm ready! Use /help to see the command."
+          bot.api.send_message(chat_id: message.chat.id, text: text)
+        when '/stop'
+          unsubscribe(client, message.chat.id)
+          text = "Bye bye! Have a nice day!"
+          bot.api.send_message(chat_id: message.chat.id, text: text)
+        when '/top'
+          text = top(client)
+          bot.api.send_message(chat_id: message.chat.id, text: text)
+        when '/watch'
+          watch(client, message.chat.id)
+          text = "Enjoy the live data. Use /endwatch to stop watching the live data."
+          bot.api.send_message(chat_id: message.chat.id, text: text)
+        when '/endwatch'
+          endwatch(client, message.chat.id)
+          text = "You are no longer watching the data."
+          bot.api.send_message(chat_id: message.chat.id, text: text)
         when '/query'
-          kb = Telegram::Bot::Types::ReplyKeyboardRemove.new(remove_keyboard: true)
-          bot.api.send_message(chat_id: message.chat.id, text: message.text)
-          sql =  message.text
-          results = client.query(sql) rescue []
-
-          if results.count > 0
-            string = ""
-            list = ""
-
-            results.each do |row|
-              list = "USER" + " |  " + "TEMPERATURE" + "\n\n"
-              string += row['user'] + "\t" + "-" + row['hash'] + "Gh/s" +  " " + "-" + row['temperature']+".C" + "\n" + "elpsed: \t" + row['elapsed'] + "\n"
-            end
-
-            text = "#{list} #{string}"
-            bot.api.send_message(chat_id: message.chat.id, text: text, reply_markup: kb)
-          else
-            text = "No data available"
-            bot.api.send_message(chat_id: message.chat.id, text: text, reply_markup: kb)
-          end
-
+          command = '/query'
+          query_text = "SELECT * FROM ant_miner WHERE temperature > 30  ORDER BY created_at DESC LIMIT 9"
+          kb = [
+            Telegram::Bot::Types::KeyboardButton.new(text: query_text)
+          ]
+          markup = Telegram::Bot::Types::ReplyKeyboardMarkup.new(keyboard: kb)
+          bot.api.send_message(chat_id: message.chat.id, text: "Please enter the query:", reply_markup: markup)
+        when '/reset'
           command = ''
+          text = "Let's start again!\n\n"
+          text += help_text
+
+          bot.api.send_message(chat_id: message.chat.id, text: text)
+        when '/help'
+          bot.api.send_message(chat_id: message.chat.id, text: help_text)
         else
-          text = "Use /help to see the command."
+          case command
+          when '/query'
+            kb = Telegram::Bot::Types::ReplyKeyboardRemove.new(remove_keyboard: true)
+            bot.api.send_message(chat_id: message.chat.id, text: message.text)
+            sql =  message.text
+            results = client.query(sql) rescue []
+            command = ''
+
+            if results.count > 0
+              string = ""
+              list = ""
+
+              results.each do |row|
+                list = "USER" + " |  " + "TEMPERATURE" + "\n\n"
+                string += row['user'] + "\t" + "-" + row['hash'] + "Gh/s" +  " " + "-" + row['temperature']+".C" + "\n" + "elpsed: \t" + row['elapsed'] + "\n"
+              end
+
+              text = "#{list} #{string}"
+              bot.api.send_message(chat_id: message.chat.id, text: text, reply_markup: kb)
+            else
+              text = "No data available"
+              bot.api.send_message(chat_id: message.chat.id, text: text, reply_markup: kb)
+            end
+          else
+            text = "Use /help to see the command."
+            bot.api.send_message(chat_id: message.chat.id, text: text)
+          end
+        end
+      else
+        case message.text
+        when '/start'
+          subscribe(client, message.chat.id)
+          text = "Hello, #{message.from.first_name}!"
+          bot.api.send_message(chat_id: message.chat.id, text: text)
+        when '/help'
+          bot.api.send_message(chat_id: message.chat.id, text: help_text)
+        else
+          text = "Use /start to start a bot. /help to see another command."
           bot.api.send_message(chat_id: message.chat.id, text: text)
         end
       end
-    else
-      case message.text
-      when '/start'
-        subscribe(client, message.chat.id)
-        text = "Hello, #{message.from.first_name}!"
-        bot.api.send_message(chat_id: message.chat.id, text: text)
-      when '/help'
-        bot.api.send_message(chat_id: message.chat.id, text: help_text)
-      else
-        text = "Use /start to start a bot. /help to see another command."
-        bot.api.send_message(chat_id: message.chat.id, text: text)
-      end
     end
+  rescue => e
+    puts e.inspect
+    retry
   end
 end
